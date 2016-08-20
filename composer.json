@@ -4,7 +4,7 @@
     "homepage": "http://www.ninja911.com",
     "keywords": ["百度", "baidu", "laravel", "editor", "ueditor"],
     "require": {
-        "laravel/framework": "5.2"
+        "laravel/framework": "^5.0"
     },
     "require-dev": {
         "phpunit/phpunit": "3.*",

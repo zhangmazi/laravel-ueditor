@@ -6,7 +6,7 @@
 
 ## 疑问讨论
 
-请在issue里new一个
+请在issue里new一个.
 
 ## 备注
 

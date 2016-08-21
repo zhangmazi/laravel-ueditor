@@ -209,7 +209,7 @@ abstract class UeditorUploaderAbstract extends Controller
             $disk_name = $this->getStorageDiskName();
             $save_root_path = $storage_driver != 'local' ? storage_path('app/public/ueditor/tmp') :
                 $storage_config[$disk_name]['root'];
-            $relative_dir = 'attachment';
+            $relative_dir = $this->getRelativeDir();
             $visibility = !empty($storage_config[$disk_name]['visibility']) ?
                 $storage_config[$disk_name]['visibility'] : null;
             $url_root = !empty($storage_config[$disk_name]['url_root']) ?
@@ -393,7 +393,7 @@ abstract class UeditorUploaderAbstract extends Controller
                     $disk_name = $this->getStorageDiskName();
                     $save_root_path = $storage_driver != 'local' ? storage_path('app/public/ueditor/tmp') :
                         $storage_config[$disk_name]['root'];
-                    $relative_dir = 'attachment';
+                    $relative_dir = $this->getRelativeDir();
                     $visibility = !empty($storage_config[$disk_name]['visibility']) ?
                         $storage_config[$disk_name]['visibility'] : null;
                     $url_root = !empty($storage_config[$disk_name]['url_root']) ?
@@ -600,5 +600,14 @@ abstract class UeditorUploaderAbstract extends Controller
         } else {
             return false;
         }
+    }
+
+    /**
+     * 获取保存相对路径
+     * @return string
+     */
+    protected function getRelativeDir()
+    {
+        return 'attachment';
     }
 }

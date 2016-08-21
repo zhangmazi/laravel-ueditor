@@ -48,15 +48,105 @@
     </div>
     <div class="row">
         <h4>1.Composer 安装</h4>
-        <pre>composer require zhangmazi/laravel-ueditor</pre>
+        <pre>composer require "zhangmazi/laravel-ueditor:^1.0"</pre>
         <h4>2.编辑config/app.php文件,在节点[providers]中加入</h4>
         <pre>Zhangmazi\Ueditor\UeditorServiceProivder::class</pre>
         <h4>3.在命令行工具执行</h4>
         <pre>php artisan vendor:publish --provider="Zhangmazi\Ueditor\UeditorServiceProivder"</pre>
-        <p>相关资源配置会成功发布到:config/zhangmazi/(配置); public/assets/(静态资源); resources/views/vendor/zhangmazi/(视图,包含demo所需)</p>
+        <p>相关资源配置会成功发布到:config/zhangmazi/(配置); public/assets/(静态资源); resources/views/vendor/zhangmazi/(视图,包含demo所需).</p>
     </div>
     <div class="row">
         <h3>配置</h3>
+        <h4>1.配置config/zhangmazi/filesystem.php</h4>
+        <p>请根据注释填写,特别要注意root和url_root,这个2个很关键,因为直接导致你是否能上传成功和是否能正常开放预览附件; root的物理路径一定有0755或者0777(当需要建立子目录时)权限.</p>
+        <h4>2.配置config/zhangmazi/ueditor.php</h4>
+        <p>请根据注释填写,节点[routes]支持多组应用场景,其配置其实就Laravel的Route原生配置方法; 其中带有"group_"前缀的都不填,将不使用路由组模式; 如果"via_integrate"为true,将将适用内置命名空间,同时不要修改"uese".</p>
+        <h4>3.配置config/zhangmazi/ext2mime.php</h4>
+        <p>这个增加上传安全性的, 如果您觉得多了和少了, 请自行根据格式进行修改.</p>
+    </div>
+
+    <div class="page-header">
+        <h1>使用</h1>
+    </div>
+    <div class="row">
+        <h3>Demo使用</h3>
+        <p>开发此包时, 为了增加体验感, 特为大家准备了demo.</p>
+        <p>访问 <a href="http://localhost/zhangmazi/ueditor/demo/index">http://localhost/zhangmazi/ueditor/demo/index</a>, 其中localhost跟更改为你自己的绑定的域名.</p>
+        <p>为了安全性, 在[.env]文件中APP_DEBUG=true才能使用demo,否则无法访问以上demo相关路由地址.</p>
+    </div>
+    <div class="row">
+        <h3>如何使用</h3>
+        <h4>1.在您的视图中, 在body闭包前(即&lt;/body&gt;),加入以下代码</h4>
+        <pre>@@include("zhangmazi::ueditor")</pre>
+        <h4>2.在您的视图中, 需要占位编辑器的dom节点内,加入以下代码</h4>
+        <pre><?php echo htmlspecialchars('<script id="ueditor_filed" name="article_content" type="text/plain"></script>'); ?></pre>
+        <p>其中id="ueditor_filed"这里是需要给百度编辑器创建的时候用到的名字, 如果同一个页面有多个,这个id请用不同的名字替换.</p>
+        <h4>3.在您的视图中, 在body闭包前(即&lt;/body&gt;),加入以下代码</h4>
+        <pre>&lt;script&gt;
+    var ueditor_full = UE.getEditor('demo_full_toolbar', {
+    'serverUrl' : '@{{ route("zhangmazi_front_ueditor_service", ['_token' => csrf_token()]) }}'
+});
+&lt;/script&gt;</pre>
+        <p>如果需要更多参考以及调用样板,比如如何自定义编辑工具栏、同一个页面多个编辑器,请查看阅读文件 vendor/zhangmazi/ueditor/src/views/ueditorDemoIndex.blade.php</p>
+    </div>
+
+    <div class="page-header">
+        <h1>自定义扩展</h1>
+        <p>以下说明需要一定PHP知识和Laravel5框架了解背景</p>
+    </div>
+    <div class="row">
+        <h3>1.扩展继承内置控制器</h3>
+        <p>新建一个控制器,并继承内置控制器"Zhangmazi\Ueditor\UeditorFrontController".</p>
+        <pre>&lt;?php
+/**
+ * 自定义的编辑器控制器.
+ * 可以观看 Zhangmazi\Ueditor\UeditorUploaderAbstract 类的方法,根据自身业务选择性重写覆盖
+ *
+ * @@author ninja911&lt;ninja911@@qq.com&gt;
+ * @@date   2016-08-20 22:22
+ */
+namespace App\Http\Controllers;
+
+use Zhangmazi\Ueditor\UeditorFrontController;
+
+class CustomUeditorController extends UeditorFrontController
+{
+    /**
+     * 记录上传日志(这些方法都可以重写覆盖)
+     * @@return mixed
+     */
+    protected function insertRecord()
+    {
+
+    }
+
+    /**
+     * 验证是否合法(这些方法都可以重写覆盖)
+     * @@return bool|mixed
+     */
+    protected function checkGuard()
+    {
+        //Auth....
+        return true;
+    }
+}
+
+?&gt;</pre>
+        <h3>2.配置config/zhangmazi/ueditor.php</h3>
+        <p>把相关路由配置一下,不用内置的</p>
+        <h3>3.查看路由清单,看是否生效,命令行里执行</h3>
+        <pre>php artisan route:list</pre>
+    </div>
+
+
+    <div class="page-header">
+        <h1>TODO</h1>
+    </div>
+    <div class="row">
+        <h3>1.完成i18n语言包中的中文和英文</h3>
+        <p>目前个人时间比较紧,如果谁有愿意翻译修改支持i18n,大大的感谢,请提交github merge request</p>
+        <h3>2.发现或者支持更多的Storage第三方文件存储驱动</h3>
+        <p>目前Laravel对亚马逊S3支持的相对完美, 但像其他国内的云存储服务,需要用Storage::extend来扩展驱动以及配置</p>
     </div>
 
 
@@ -110,6 +200,20 @@
 <script>
     // 定义默认编辑器高度
     var ueditor_height = 480;
+    // UE编辑器上传参数-通用版
+    function getUeditorCommonParams() {
+        return {
+            'thumb_appointed' : '0',    //强制缩略图, 1=是,0=否,支持多组,用逗号分隔开,如0,0,0,0
+            'thumb_water' : '0',     //是否水印,1=是,0=否,支持多组,用逗号分隔开,如0,0,0,0
+            'thumb_num' : '1',      //缩略图数量, 跟多组有关联性
+            'thumb_max_width' : '600',  //缩略图最大宽度, 多组用逗号分隔并由小到大,如200,400,800
+            'thumb_max_height' : '2000',//缩略图最大高度, 多组用逗号分隔并由小到大,如200,400,800
+            'ext_type' : '100', //允许上传的扩展名
+            'need_origin_pic' : 0,  //是否保留原图, 1=要, 0=不
+            '_token' : '{{ csrf_token() }}',    //Laravel 校验token用的
+        };
+    }
+
 
     // 生成一个全部工具条的编辑器
     var ueditor_full = UE.getEditor('demo_full_toolbar', {
@@ -120,6 +224,14 @@
         'initialFrameWidth' : "100%",
         'initialFrameHeight' : ueditor_height
     });
+
+    // 附加上其他参数,方便后端业务自主获取用
+    ueditor_full.ready(function() {
+        ueditor_full.execCommand('serverparam', function(editor) {
+            return getUeditorCommonParams();
+        });
+    });
+
 
     // 简单toolbars
     // 具体配置,请参考[百度编辑器官方文档](http://fex.baidu.com/ueditor/#start-toolbar)
@@ -140,6 +252,13 @@
         'initialFrameWidth' : 600,  //自定义高度
         'initialFrameHeight' : 300  //自定义高度
     });
+    // 附加上其他参数,方便后端业务自主获取用
+    ueditor_simple.ready(function() {
+        ueditor_simple.execCommand('serverparam', function(editor) {
+            return getUeditorCommonParams();
+        });
+    });
+
 
     // 生成后端演示编辑器, 注意这里的serverUrl配置路由跟前端不同
     var ueditor_end = UE.getEditor('demo_end_toolbar', {
@@ -149,6 +268,12 @@
         'maximumWords' : 1000000,   //自定义可以输入多少字
         'initialFrameWidth' : "100%",
         'initialFrameHeight' : ueditor_height
+    });
+    // 附加上其他参数,方便后端业务自主获取用
+    ueditor_end.ready(function() {
+        ueditor_end.execCommand('serverparam', function(editor) {
+            return getUeditorCommonParams();
+        });
     });
 </script>
 <!--end 人工手动根据自己需要进行创建编辑器-->

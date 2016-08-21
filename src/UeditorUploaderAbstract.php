@@ -200,6 +200,7 @@ abstract class UeditorUploaderAbstract extends Controller
         $uploader->waterType = $params['water_picture_exists'] ? 'picture' : '';
         $uploader->waterPicture = $params['water_picture'];
         $uploader->waterPosition = 9;
+        $uploader->isSaveOriginFile = $params['need_origin_pic'];
         if (app()->bound('image') && class_exists('\Intervention\Image\ImageManager')) {
             $uploader->imageHelper = app()->make('image');
         }
@@ -263,7 +264,8 @@ abstract class UeditorUploaderAbstract extends Controller
         $thumb_num = intval($request::get('thumb_num', 0));   //缩略图数量
         $thumb_max_width = $request::get('thumb_max_width', '');  //缩略图最大宽度，多组用半角逗号分隔开
         $thumb_max_height = $request::get('thumb_max_height', '');//缩略图最大高度，多组用半角逗号分隔开
-        $ext_type = intval($request::get('ext_type', 1)); //文件扩展名限制类型 0-不限制  1-图片 2-附件 3-flash 4-多媒体
+        $ext_type = intval($request::get('ext_type', 100)); //文件扩展名限制类型 0-不限制  1-图片 2-附件 3-flash 4-多媒体
+        $need_origin_pic = intval($request::get('need_origin_pic', 0)); //是否需要保留原图
 
         $water_picture = public_path('/assets/sys/watermark.png');    //水印图
         $water_picture_exists = File::exists($water_picture) ? true : false;
@@ -280,6 +282,7 @@ abstract class UeditorUploaderAbstract extends Controller
             'water_picture_exists' => $water_picture_exists,
             'water_picture' => $water_picture,
             'ext_type' => $ext_type,
+            'need_origin_pic' => $need_origin_pic,
         ];
     }
 

@@ -140,6 +140,15 @@ class CustomUeditorController extends UeditorFrontController
         //Auth....
         return true;
     }
+
+    /**
+     * 获取相对于public_path()根目录的相对目录
+     * @return bool|mixed
+     */
+    protected function getRelativeDir()
+    {
+        return 'uploads/ueditor';
+    }
 }
 
 ?>

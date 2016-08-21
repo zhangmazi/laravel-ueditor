@@ -342,7 +342,7 @@ class Uploader
         $arr_exts = array(
             'picture' => array('jpg', 'gif', 'png', 'jpeg', 'bmp'),
             'compress' => array('zip', 'rar', '7z', 'tar', 'bz2', 'gz', 'apk'),
-            'office' => array('docx', 'xlsx', 'pptx', 'doc', 'xls',
+            'office' => array('docx', 'xlsx', 'pptx', 'doc', 'xls', 'pdf',
                 'ppt', 'pps', 'wps', 'et', 'dps', 'xml', 'kml'),    //办公
             'flash' => array('swf', 'flv', 'as', 'fla'),    //FLASH
             'media' => array("ra","rm","rmvb","avi","mpeg","mid","wma","wav","mp3","wmv","mov", 'mp4', 'lrc'),    //多媒体
@@ -366,6 +366,11 @@ class Uploader
                 break;
             case 6:
                 $return_ext = array_merge($arr_exts['flash'], $arr_exts['media']);
+                break;
+            case 100:
+                foreach ($arr_exts as $k => $v) {
+                    $return_ext = array_merge($v, $return_ext);
+                }
                 break;
             default:
                 break;

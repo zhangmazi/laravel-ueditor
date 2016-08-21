@@ -67,6 +67,8 @@ class UeditorServiceProivder extends ServiceProvider
     protected function registerRoutes($router)
     {
         $route_config = config('zhangmazi.ueditor', []);
+        //注册demo路由
+        $this->registerRouteDemo($router);
         if (!empty($route_config['routes'])) {
             foreach ($route_config['routes'] as $k => $v) {
                 //如果有定义路由URI
@@ -86,25 +88,49 @@ class UeditorServiceProivder extends ServiceProvider
                     if (!empty($v['group_middleware'])) {
                         $group_params['group_middleware'] = $v['group_middleware'];
                     }
-                    if (!empty($v['prefix'])) {
-                        $group_params['prefix'] = $v['prefix'];
+                    if (!empty($v['group_prefix'])) {
+                        $group_params['group_prefix'] = $v['group_prefix'];
                     }
-                    if (!empty($v['domain'])) {
-                        $group_params['domain'] = $v['domain'];
+                    if (!empty($v['group_domain'])) {
+                        $group_params['group_domain'] = $v['group_domain'];
                     }
                     //写入路由组
                     $router->group($group_params, function ($router) use ($v) {
-                        $router->any(
-                            $v['uri'],
-                            [
-                                'uses' => !empty($v['uses']) ? $v['uses'] : 'UeditorFrontController@service',
-                                'as' => $v['as'],
-                                'middleware' => $v['middleware'],
-                            ]
-                        );
+                        $param = [
+                            'uses' => !empty($v['uses']) ? $v['uses'] : 'UeditorFrontController@service',
+                        ];
+                        if (!empty($v['as'])) {
+                            $param['as'] = $v['as'];
+                        }
+                        if (!empty($v['middleware'])) {
+                            $param['middleware'] = $v['middleware'];
+                        }
+                        $router->any($v['uri'], $param);
                     });
                 }
             }
+        }
+    }
+
+    protected function registerRouteDemo($router)
+    {
+        if (config('app.debug') === true) {
+            $router->get(
+                'zhangmazi/ueditor/demo/index',
+                ['as' => 'zhangmazi_udemo_index', 'uses' => '\\' .__NAMESPACE__ .'\\UeditorFrontController@demoIndex']
+            );
+            $router->get(
+                'zhangmazi/ueditor/demo/end',
+                ['as' => 'zhangmazi_udemo_end', 'uses' => '\\' .__NAMESPACE__ .'\\UeditorEndController@demoIndex']
+            );
+            $router->post(
+                'zhangmazi/ueditor/demo/login',
+                ['as' => 'zhangmazi_udemo_login', 'uses' => '\\' .__NAMESPACE__ .'\\UeditorEndController@demoLogin']
+            );
+            $router->get(
+                'zhangmazi/ueditor/demo/logout',
+                ['as' => 'zhangmazi_udemo_logout', 'uses' => '\\' .__NAMESPACE__ .'\\UeditorEndController@demoLogout']
+            );
         }
     }
 }

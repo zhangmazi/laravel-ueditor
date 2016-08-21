@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\File;
 
 class Uploader
 {
+    private $ext2mime = [];
     public $maxSize = 0;
     public $allowExts = [];
     public $allowMimes = [];
@@ -197,11 +198,11 @@ class Uploader
      */
     public function checkMime($mime)
     {
-        if ($this->allowMimes) {
-            return in_array($mime, $this->allowMimes);
-        } else {
-            return true;
+        if (!$this->allowMimes) {
+            // 如果没有配置, 为了安全,则使用内置默认的mime校验
+            $this->allowMimes = $this->getDefaultMimeTypes();
         }
+        return in_array($mime, $this->allowMimes);
     }
 
     /**
@@ -211,6 +212,10 @@ class Uploader
      */
     public function checkExtension($ext)
     {
+        if (!$this->allowExts) {
+            // 如果没有配置,为了安全,则使用图片类扩展名校验
+            $this->allowExts = $this->getAllowExtsByType(1);
+        }
         return in_array($ext, $this->allowExts);
     }
 
@@ -221,7 +226,7 @@ class Uploader
      */
     public function checkSize($size)
     {
-        if ($this->maxSize) {
+        if ($this->maxSize > 0) {
             return !($size > $this->maxSize);
         } else {
             return true;
@@ -359,5 +364,17 @@ class Uploader
                 break;
         }
         return $return_ext;
+    }
+
+    /**
+     * 获取默认有效合法的MIME类型
+     * @return mixed
+     */
+    public function getDefaultMimeTypes()
+    {
+        if (!$this->ext2mime) {
+            $this->ext2mime = config('zhangmazi.ext2mime', []);
+        }
+        return !empty($this->ext2mime) ? $this->ext2mime : ['jpg' => 'image/jpeg'];
     }
 }

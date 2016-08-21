@@ -293,6 +293,8 @@ abstract class UeditorUploaderAbstract extends Controller
 
     protected function actionUploadFile($request)
     {
+        $js_config = $this->getJsonConfig();
+        $upload_field_name = $js_config[''];
         $arr_result = $this->uploadFile($request, 'upload_files');
         $ue_result = array(
             'state' => '',  //状态
@@ -417,10 +419,11 @@ abstract class UeditorUploaderAbstract extends Controller
     {
         $page_size = config('zhangmazi.ueditor.imageManagerListSize', 20);
         $upload_max_size = config('zhangmazi.ueditor.upload_max_size_by_k', 20480) * 1024;
+        $upload_field_name = config('zhangmazi.ueditor.upload_field_name', 'upload_files');
         $arr_config = array(
             //上传图片配置项
             'imageActionName' => 'UploadImage', //执行上传图片的action名称
-            'imageFieldName' => 'upload_files',  //提交的图片表单名称
+            'imageFieldName'  => $upload_field_name,  //提交的图片表单名称
             'imageMaxSize' => $upload_max_size,    //上传大小限制，单位B
             'imageAllowFiles' => array('.jpg', '.jpeg', '.png', '.gif', '.bmp'), //上传图片格式显示
             'imageCompressEnable' => true, //是否压缩图片,默认是true
@@ -431,7 +434,7 @@ abstract class UeditorUploaderAbstract extends Controller
 
             //涂鸦图片上传配置项
             'scrawlActionName' => 'UploadScrawl',    //执行上传涂鸦的action名称
-            'scrawlFieldName' => 'upload_files', //提交的图片表单名称
+            'scrawlFieldName'  => $upload_field_name, //提交的图片表单名称
             'scrawlPathFormat' => '',    //上传保存路径,可以自定义保存路径和文件名格式
             'scrawlMaxSize' => $upload_max_size,   //上传大小限制，单位B
             'scrawlUrlPrefix' => '',    //图片访问路径前缀
@@ -449,7 +452,7 @@ abstract class UeditorUploaderAbstract extends Controller
                 'localhost',
             ),
             'catcherActionName' => 'CatchImage',    //执行抓取远程图片的action名称
-            'catcherFieldName' => 'upload_files',    //提交的图片列表表单名称
+            'catcherFieldName'  => $upload_field_name,    //提交的图片列表表单名称
             'catcherPathFormat' => '',   //上传保存路径,可以自定义保存路径和文件名格式
             'catcherUrlPrefix' => '',    //图片访问路径前缀
             'catcherMaxSize' => $upload_max_size,  //上传大小限制，单位B
@@ -457,7 +460,7 @@ abstract class UeditorUploaderAbstract extends Controller
 
             //上传视频配置
             'videoActionName' => 'UploadVideo', //执行上传视频的action名称
-            'videoFieldName' => 'upload_files',  //提交的视频表单名称
+            'videoFieldName'  => $upload_field_name,  //提交的视频表单名称
             'videoPathFormat' => '', //上传保存路径,可以自定义保存路径和文件名格式
             'videoUrlPrefix' => '',  //视频访问路径前缀
             'videoMaxSize' => $upload_max_size,    //上传大小限制，单位B，默认100MB
@@ -466,7 +469,7 @@ abstract class UeditorUploaderAbstract extends Controller
 
             //上传文件配置
             'fileActionName' => 'UploadFile',  //controller里,执行上传视频的action名称
-            'fileFieldName' => 'upload_files',  //提交的文件表单名称
+            'fileFieldName'  => $upload_field_name,  //提交的文件表单名称
             'filePathFormat' => '',  //上传保存路径,可以自定义保存路径和文件名格式
             'fileUrlPrefix' => '',   //文件访问路径前缀
             'fileMaxSize' => $upload_max_size, //上传大小限制，单位B，默认50MB

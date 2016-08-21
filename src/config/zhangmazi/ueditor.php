@@ -11,10 +11,11 @@ return [
             'via_integrate' => true,    //是否使用集成的
             'namespace' => '',  //使用集成,此命名空间将无效
             'group_as' => 'zhangmazi_front',
+            'group_middleware' => [],
             'uri' => 'front/ueditor/service',
             'uses' => 'UeditorFrontController@service',
             'as' => 'zhangmazi_front_ueditor_service',
-            'middleware' => '',
+            'middleware' => [],
             'prefix' => '',
             'domain' => '',
         ],
@@ -22,10 +23,11 @@ return [
             'via_integrate' => true,    //是否使用集成的
             'namespace' => '',  //使用集成,此命名空间将无效
             'group_as' => 'zhangmazi_end',
+            'group_middleware' => [],
             'uri' => 'end/ueditor/service',
             'uses' => 'UeditorEndController@service',
             'as' => 'zhangmazi_end_ueditor_service',
-            'middleware' => '',
+            'middleware' => [],
             'prefix' => '',
             'domain' => '',
         ],

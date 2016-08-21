@@ -82,9 +82,9 @@ class UeditorServiceProivder extends ServiceProvider
                     if (!$v['group_as']) {
                         $group_params['group_as'] = $v['group_as'];
                     }
-                    //处理中间件
-                    if (!empty($v['middleware'])) {
-                        $group_params['middleware'] = $v['middleware'];
+                    //处理路由组中间件
+                    if (!empty($v['group_middleware'])) {
+                        $group_params['group_middleware'] = $v['group_middleware'];
                     }
                     if (!empty($v['prefix'])) {
                         $group_params['prefix'] = $v['prefix'];
@@ -98,7 +98,8 @@ class UeditorServiceProivder extends ServiceProvider
                             $v['uri'],
                             [
                                 'uses' => !empty($v['uses']) ? $v['uses'] : 'UeditorFrontController@service',
-                                'as' => $v['as']
+                                'as' => $v['as'],
+                                'middleware' => $v['middleware'],
                             ]
                         );
                     });

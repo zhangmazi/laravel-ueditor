@@ -90,7 +90,7 @@ php artisan vendor:publish --provider="Zhangmazi\Ueditor\UeditorServiceProivder"
 
 ```html
 <script>
-    var ueditor_full = UE.getEditor('demo_full_toolbar', {
+    var ueditor_full = UE.getEditor('ueditor_filed', {
     'serverUrl' : '{{ route("zhangmazi_front_ueditor_service", ['_token' => csrf_token()]) }}'
 });
 </script>

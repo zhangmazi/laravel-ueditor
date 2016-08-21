@@ -28,7 +28,7 @@
 #### 1.Composer 安装
 
 ```shell
-composer require zhangmazi/laravel-ueditor
+composer require "zhangmazi/laravel-ueditor:^1.0.0"
 ```
 
 #### 2.编辑config/app.php文件,在节点[providers]中加入

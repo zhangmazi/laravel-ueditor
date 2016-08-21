@@ -24,6 +24,7 @@ abstract class UeditorUploaderAbstract extends Controller
      */
     protected function insertRecord($setarr, $request = null)
     {
+        // todo 如果需要,请自行重写覆盖此方法
         return true;
     }
 
@@ -63,14 +64,19 @@ abstract class UeditorUploaderAbstract extends Controller
      */
     protected function getRecordInfo($pk)
     {
+        // todo 如果需要,请自行重写覆盖此方法
         $info = [
             // 文件相对路径, 比如http://www.ninja911.com/attachments/xxxxxxx.jpg
-            // xxxxxxx.jpg 就是相对路径
+            // attachments/xxxxxxx.jpg 就是相对路径
             'file_relative_path' => '',
         ];
         return $info;
     }
 
+    /**
+     * 获取文件系统管理者对象
+     * @return mixed
+     */
     protected function getStorage()
     {
         if (!$this->storage) {
@@ -80,6 +86,10 @@ abstract class UeditorUploaderAbstract extends Controller
         return $this->storage;
     }
 
+    /**
+     * 获取文件系统使用的磁盘名
+     * @return mixed
+     */
     protected function getStorageDiskName()
     {
         $config = $this->getStorageConfig();
@@ -90,14 +100,23 @@ abstract class UeditorUploaderAbstract extends Controller
         }
     }
 
+    /**
+     * 获取合并后的文件系统配置
+     * @return array
+     */
     protected function getStorageConfig()
     {
-        $c1 = config('zhangmazi.ueditor.filesystems', []);
+        $c1 = config('zhangmazi.filesystems', []);
         $c2 = config('filesystems', []);
         $c2['disks'] = array_merge($c1['disks'], $c2['disks']);
         return array_merge($c1, $c2);
     }
 
+    /**
+     * 对外控制器需要的服务,百度请求统一URL地址所映射的控制器的方法
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function service(Request $request)
     {
         //验证的一个钩子
@@ -152,6 +171,12 @@ abstract class UeditorUploaderAbstract extends Controller
         }
     }
 
+    /**
+     * 执行上传
+     * @param        $request
+     * @param string $upload_field_name 表单中的form name 上传字段
+     * @return array
+     */
     protected function uploadFile($request, $upload_field_name = 'upload_files')
     {
         if (!$request::hasFile($upload_field_name)) {
@@ -258,6 +283,12 @@ abstract class UeditorUploaderAbstract extends Controller
         ];
     }
 
+    /**
+     * 复文件处理获取
+     * @param $request
+     * @param string $file_field 表单中上传字段
+     * @return array
+     */
     protected function dealFiles($request, $file_field)
     {
         $arr_files = [];
@@ -271,6 +302,11 @@ abstract class UeditorUploaderAbstract extends Controller
         return $arr_files;
     }
 
+    /**
+     * 编辑器上传图片
+     * @param $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     protected function actionUploadImage($request)
     {
         $arr_result = $this->uploadFile($request, 'upload_files');
@@ -291,6 +327,11 @@ abstract class UeditorUploaderAbstract extends Controller
         return response()->json($ue_result);
     }
 
+    /**
+     * 编辑器上传文件
+     * @param $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     protected function actionUploadFile($request)
     {
         $js_config = $this->getJsonConfig();
@@ -313,6 +354,11 @@ abstract class UeditorUploaderAbstract extends Controller
         return response()->json($ue_result);
     }
 
+    /**
+     * 编辑器专区远程图片到本地
+     * @param $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     protected function actionCatchImage($request)
     {
         $arr_list = array();
@@ -379,6 +425,12 @@ abstract class UeditorUploaderAbstract extends Controller
         return response()->json($arr_return);
     }
 
+    /**
+     * 编辑器获取图库清单
+     * @param     $request
+     * @param int $type
+     * @return \Illuminate\Http\JsonResponse
+     */
     protected function actionListImage($request, $type = 1)
     {
         $new_start = 0;
@@ -415,6 +467,10 @@ abstract class UeditorUploaderAbstract extends Controller
         return response()->json($arr_return);
     }
 
+    /**
+     * 编辑器所需要的json前端配置
+     * @return array
+     */
     protected function getJsonConfig()
     {
         $page_size = config('zhangmazi.ueditor.imageManagerListSize', 20);

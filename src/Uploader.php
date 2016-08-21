@@ -27,6 +27,13 @@ class Uploader
     public $waterPicture = '';          //水印图片路径
     public $waterPosition = 9;          //水印位置
 
+    /**
+     * 执行上传文件
+     * @param mixed  $file           文件对象
+     * @param string $save_root_path 保存资源的物理根目录,一般为public('')
+     * @param string $relative_dir   相对目录路径
+     * @return array|bool
+     */
     public function uploadFile($file, $save_root_path = '', $relative_dir = '')
     {
         $is_pic = false;

@@ -33,7 +33,7 @@ class UeditorEndController extends UeditorUploaderAbstract
         if ($account == 'zhangmazi' && $password == '88888888') {
             return redirect(route('zhangmazi_udemo_index'))->cookie($this->setLogined($account));
         } else {
-            abort(500, '登录失败');
+            return abort(500, '登录失败');
         }
     }
 

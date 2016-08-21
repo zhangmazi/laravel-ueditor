@@ -77,9 +77,9 @@ class UeditorServiceProivder extends ServiceProvider
                     $v['as'] = !empty($v['as']) ? $v['as'] : 'zhangmazi_front_ueditor_service';
                     $v['group_as'] = !empty($v['group_as']) ? $v['group_as'] : '';
                     //处理命名空间
-                    $group_params = ['namespace' => __NAMESPACE__];
+                    $group_params = [];
                     if (!$v['via_integrate']) {
-                        $group_params['namespace'] = $v['namespace'];
+                        $group_params['group_namespace'] = $v['group_namespace'];
                     }
                     if (!$v['group_as']) {
                         $group_params['group_as'] = $v['group_as'];
@@ -94,10 +94,29 @@ class UeditorServiceProivder extends ServiceProvider
                     if (!empty($v['group_domain'])) {
                         $group_params['group_domain'] = $v['group_domain'];
                     }
-                    //写入路由组
-                    $router->group($group_params, function ($router) use ($v) {
+                    if (!empty($group_params)) {
+                        //写入路由组
+                        $router->group($group_params, function ($router) use ($v) {
+                            $param = [
+                                'uses' => !empty($v['uses']) ? $v['uses'] : 'UeditorFrontController@service',
+                            ];
+                            if (!empty($v['as'])) {
+                                $param['as'] = $v['as'];
+                            }
+                            if (!empty($v['middleware'])) {
+                                $param['middleware'] = $v['middleware'];
+                            }
+                            $router->any($v['uri'], $param);
+                        });
+                    } else {
+                        //写入路由组
+                        $uses = '\\' . __NAMESPACE__ . '\\' .
+                            (!empty($v['uses']) ? $v['uses'] : 'UeditorFrontController@service');
+                        if (!$v['via_integrate']) {
+                            $uses = !empty($v['uses']) ? $v['uses'] : $uses;
+                        }
                         $param = [
-                            'uses' => !empty($v['uses']) ? $v['uses'] : 'UeditorFrontController@service',
+                            'uses' => $uses,
                         ];
                         if (!empty($v['as'])) {
                             $param['as'] = $v['as'];
@@ -106,7 +125,7 @@ class UeditorServiceProivder extends ServiceProvider
                             $param['middleware'] = $v['middleware'];
                         }
                         $router->any($v['uri'], $param);
-                    });
+                    }
                 }
             }
         }

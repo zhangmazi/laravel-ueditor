@@ -9,7 +9,7 @@ return [
     'routes' => [
         'front' => [
             'via_integrate' => true,    //是否使用集成的
-            'namespace' => '',  //使用集成,此命名空间将无效
+            'group_namespace' => '',  //使用集成,此命名空间将无效
             'group_prefix' => '', //组前缀
             'group_domain' => '', //组域名
             'group_as' => 'zhangmazi_front',    //组里的别名
@@ -21,7 +21,7 @@ return [
         ],
         'end' => [
             'via_integrate' => true,    //是否使用集成的
-            'namespace' => '',  //使用集成,此命名空间将无效
+            'group_namespace' => '',  //使用集成,此命名空间将无效
             'group_prefix' => '', //组前缀
             'group_domain' => '', //组域名
             'group_as' => 'zhangmazi_end',      //组里的别名

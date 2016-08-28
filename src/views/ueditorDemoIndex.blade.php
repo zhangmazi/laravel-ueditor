@@ -60,7 +60,7 @@
         <h4>1.配置config/zhangmazi/filesystem.php</h4>
         <p>请根据注释填写,特别要注意root和url_root,这个2个很关键,因为直接导致你是否能上传成功和是否能正常开放预览附件; root的物理路径一定有0755或者0777(当需要建立子目录时)权限.</p>
         <h4>2.配置config/zhangmazi/ueditor.php</h4>
-        <p>请根据注释填写,节点[routes]支持多组应用场景,其配置其实就Laravel的Route原生配置方法; 其中带有"group_"前缀的都不填,将不使用路由组模式; 如果"via_integrate"为true,将将适用内置命名空间,同时不要修改"uese".</p>
+        <p>请根据注释填写,节点[routes]支持多组应用场景,其配置其实就Laravel的Route原生配置方法; 其中带有"group_"前缀的都不填,将不使用路由组模式; 如果"via_integrate"为true,将使用内置命名空间,同时不要修改"uses".</p>
         <h4>3.配置config/zhangmazi/ext2mime.php</h4>
         <p>这个增加上传安全性的, 如果您觉得多了和少了, 请自行根据格式进行修改.</p>
     </div>

@@ -11,8 +11,9 @@ use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cookie;
 
-class UeditorEndController extends UeditorUploaderAbstract
+class UeditorEndController extends Controller
 {
+    use UeditorUploaderAbstract;
     protected $cookieName = 'zmz';
 
     public function demoIndex()

@@ -9,11 +9,9 @@
 namespace Zhangmazi\Ueditor;
 
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\File;
 
-abstract class UeditorUploaderAbstract extends Controller
+trait UeditorUploaderAbstract
 {
     protected $storage = null;
     /**
@@ -114,17 +112,16 @@ abstract class UeditorUploaderAbstract extends Controller
 
     /**
      * 对外控制器需要的服务,百度请求统一URL地址所映射的控制器的方法
-     * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function service(Request $request)
+    public function service()
     {
         //验证的一个钩子
         if (!$this->checkGuard()) {
             return response()->json(['state' => '拒绝请求']);
         }
         //获取来自editor js 拼接的一个action
-        $action = $request::get('action', '');
+        $action = request('action', '');
         switch ($action) {
             case 'config':
                 $cfg = $this->getJsonConfig();
@@ -132,7 +129,7 @@ abstract class UeditorUploaderAbstract extends Controller
                 break;
             case 'UploadFile':
             case 'UploadImage':
-                return $this->actionUploadImage($request);
+                return $this->actionUploadImage();
                 break;
             case 'UploadScrawl':
             case 'UploadSnapScreen':
@@ -147,7 +144,7 @@ abstract class UeditorUploaderAbstract extends Controller
                 break;
             case 'CatchImage':
                 if (config('zhangmazi.ueditor.is_catch_images', false)) {
-                    return $this->actionCatchImage($request); //启用远程采集图片，取消这个注释
+                    return $this->actionCatchImage(); //启用远程采集图片，取消这个注释
                 } else {
                     $ue_result = array(
                         'state' => 'ERROR',
@@ -157,10 +154,10 @@ abstract class UeditorUploaderAbstract extends Controller
                 }
                 break;
             case 'ListImage':
-                return $this->actionListImage($request, 1);
+                return $this->actionListImage(1);
                 break;
             case 'ListFile':
-                return $this->actionListImage($request, 2);
+                return $this->actionListImage(2);
                 break;
             default:
                 $ue_result = array(
@@ -173,20 +170,20 @@ abstract class UeditorUploaderAbstract extends Controller
 
     /**
      * 执行上传
-     * @param        $request
      * @param string $upload_field_name 表单中的form name 上传字段
      * @return array
      */
-    protected function uploadFile($request, $upload_field_name = 'upload_files')
+    protected function uploadFile($upload_field_name = 'upload_files')
     {
-        if (!$request::hasFile($upload_field_name)) {
+        $request = request();
+        if (!$request->hasFile($upload_field_name)) {
             return ['state' => '请选择文件'];
         }
         $arr_return = [];
         $arr_files = $this->dealFiles($request, $upload_field_name);
 
         $uploader = app()->make('zhangmazi.ueditor.uploader');
-        $params = $this->getUploaderParams($request);
+        $params = $this->getUploaderParams();
         $arr_exts = $uploader->getAllowExtsByType($params['ext_type']);
         $uploader->maxSize = 0; //不限制
         $uploader->allowExts = $arr_exts;
@@ -254,18 +251,17 @@ abstract class UeditorUploaderAbstract extends Controller
 
     /**
      * 获取上传请求参数
-     * @param $request
      * @return array
      */
-    protected function getUploaderParams($request)
+    protected function getUploaderParams()
     {
-        $thumb_appointed = $request::get('thumb_appointed', ''); //是否强制尺寸高宽
-        $thumb_water = $request::get('thumb_water', '');     //是否加水印
-        $thumb_num = intval($request::get('thumb_num', 0));   //缩略图数量
-        $thumb_max_width = $request::get('thumb_max_width', '');  //缩略图最大宽度，多组用半角逗号分隔开
-        $thumb_max_height = $request::get('thumb_max_height', '');//缩略图最大高度，多组用半角逗号分隔开
-        $ext_type = intval($request::get('ext_type', 100)); //文件扩展名限制类型 0-不限制  1-图片 2-附件 3-flash 4-多媒体
-        $need_origin_pic = intval($request::get('need_origin_pic', 0)); //是否需要保留原图
+        $thumb_appointed = request('thumb_appointed', ''); //是否强制尺寸高宽
+        $thumb_water = request('thumb_water', '');     //是否加水印
+        $thumb_num = intval(request('thumb_num', 0));   //缩略图数量
+        $thumb_max_width = request('thumb_max_width', '');  //缩略图最大宽度，多组用半角逗号分隔开
+        $thumb_max_height = request('thumb_max_height', '');//缩略图最大高度，多组用半角逗号分隔开
+        $ext_type = intval(request('ext_type', 100)); //文件扩展名限制类型 0-不限制  1-图片 2-附件 3-flash 4-多媒体
+        $need_origin_pic = intval(request('need_origin_pic', 0)); //是否需要保留原图
 
         $water_picture = public_path('/assets/sys/watermark.png');    //水印图
         $water_picture_exists = File::exists($water_picture) ? true : false;
@@ -295,24 +291,23 @@ abstract class UeditorUploaderAbstract extends Controller
     protected function dealFiles($request, $file_field)
     {
         $arr_files = [];
-        if (is_array($request::file($file_field))) {
-            foreach ($request::file($file_field) as $file) {
+        if (is_array($request->file($file_field))) {
+            foreach ($request->file($file_field) as $file) {
                 $arr_files[] = $file;
             }
         } else {
-            $arr_files[] = $request::file($file_field);
+            $arr_files[] = $request->file($file_field);
         }
         return $arr_files;
     }
 
     /**
      * 编辑器上传图片
-     * @param $request
      * @return \Illuminate\Http\JsonResponse
      */
-    protected function actionUploadImage($request)
+    protected function actionUploadImage()
     {
-        $arr_result = $this->uploadFile($request, 'upload_files');
+        $arr_result = $this->uploadFile('upload_files');
         $ue_result = array(
             'state' => '',  //状态
             'url' => '',    //地址
@@ -332,14 +327,13 @@ abstract class UeditorUploaderAbstract extends Controller
 
     /**
      * 编辑器上传文件
-     * @param $request
      * @return \Illuminate\Http\JsonResponse
      */
-    protected function actionUploadFile($request)
+    protected function actionUploadFile()
     {
         $js_config = $this->getJsonConfig();
         $upload_field_name = $js_config[''];
-        $arr_result = $this->uploadFile($request, 'upload_files');
+        $arr_result = $this->uploadFile('upload_files');
         $ue_result = array(
             'state' => '',  //状态
             'url' => '',    //地址
@@ -359,10 +353,9 @@ abstract class UeditorUploaderAbstract extends Controller
 
     /**
      * 编辑器专区远程图片到本地
-     * @param $request
      * @return \Illuminate\Http\JsonResponse
      */
-    protected function actionCatchImage($request)
+    protected function actionCatchImage()
     {
         $arr_list = array();
         $arr_return = array(
@@ -370,10 +363,10 @@ abstract class UeditorUploaderAbstract extends Controller
             'list' => $arr_list,
         );
         $cfg = $this->getJsonConfig();
-        $sources = $request::get($cfg['catcherFieldName'], array());
+        $sources = request($cfg['catcherFieldName'], array());
         if ($sources) {
             $uploader = app()->make('zhangmazi.ueditor.uploader');
-            $params = $this->getUploaderParams($request);
+            $params = $this->getUploaderParams();
             $arr_exts = $uploader->getAllowExtsByType($params['ext_type']);
             $uploader->maxSize = 0; //不限制
             $uploader->allowExts = $arr_exts;
@@ -430,11 +423,10 @@ abstract class UeditorUploaderAbstract extends Controller
 
     /**
      * 编辑器获取图库清单
-     * @param     $request
      * @param int $type
      * @return \Illuminate\Http\JsonResponse
      */
-    protected function actionListImage($request, $type = 1)
+    protected function actionListImage($type = 1)
     {
         $new_start = 0;
         $page = 1;
@@ -448,11 +440,11 @@ abstract class UeditorUploaderAbstract extends Controller
 
         $cfg = $this->getJsonConfig();
         $page_size = $cfg['imageManagerListSize'] ? $cfg['imageManagerListSize'] : 20;
-        $size = (int)$request::get('size', $page_size);
+        $size = (int)request('size', $page_size);
         if ($size < 0) {
             $size = $page_size;
         }
-        $start = (int)$request::get('start', 0);
+        $start = (int)request('start', 0);
         if ($start < 0) {
             $start = 0;
         }

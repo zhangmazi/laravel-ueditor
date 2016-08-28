@@ -1,7 +1,7 @@
 
 # 百度编辑器 For Laravel 5
 
-支持自定义路由, 默认前后台独立控制器,支持重写方法方便自己的业务逻辑处理,支持扩展图片助手(推荐使用Intervention\Image第三方包)
+支持自定义路由,支持图片、附件上传, 默认前后台独立控制器,支持重写方法方便自己的业务逻辑处理,支持扩展图片助手(推荐使用Intervention\Image第三方包)
 
 
 ## 官网
@@ -103,25 +103,27 @@ php artisan vendor:publish --provider="Zhangmazi\Ueditor\UeditorServiceProivder"
 
 以下说明需要一定PHP知识和Laravel5框架了解背景
 
-### 1.扩展继承内置控制器
+### 1.扩展控制器
 
-新建一个控制器,并继承内置控制器"Zhangmazi\Ueditor\UeditorFrontController".
+新建一个控制器, 内部复用一个类UeditorUploaderAbstract,有兴趣可以查看这个类,根据自身业务选择性重写覆盖.
 
 ```php
 <?php
 /**
  * 自定义的编辑器控制器.
- * 可以观看 Zhangmazi\Ueditor\UeditorUploaderAbstract 类的方法,根据自身业务选择性重写覆盖
+ * 可以观看 Zhangmazi\Ueditor\UeditorUploaderAbstract 复用类的方法,根据自身业务选择性重写覆盖
  *
  * @author ninja911<ninja911@qq.com>
  * @date   2016-08-20 22:22
  */
 namespace App\Http\Controllers;
 
-use Zhangmazi\Ueditor\UeditorFrontController;
+use App\Http\Controllers\Controller;
+use Zhangmazi\Ueditor\UeditorUploaderAbstract;
 
-class CustomUeditorController extends UeditorFrontController
+class CustomUeditorController extends Controller
 {
+    use UeditorUploaderAbstract;
     /**
      * 记录上传日志(这些方法都可以重写覆盖)
      * @return mixed
@@ -137,7 +139,8 @@ class CustomUeditorController extends UeditorFrontController
      */
     protected function checkGuard()
     {
-        //Auth....
+        //如果是后端
+        //return Auth::check();
         return true;
     }
 

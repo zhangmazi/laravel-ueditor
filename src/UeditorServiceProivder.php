@@ -28,8 +28,8 @@ class UeditorServiceProivder extends ServiceProvider
     {
         $this->publishes([__DIR__.'/assets' => public_path('assets')], 'public');
         $this->publishes([__DIR__ . '/config' => config_path()], 'config');
-        $this->publishes([__DIR__ . '/lang' => resource_path('lang/vendor/zhangmazi')]);
-        $this->publishes([__DIR__.'/views' => resource_path('views/vendor/zhangmazi')], 'zhangmazi');
+        $this->publishes([__DIR__ . '/lang' => $this->resourcePath('lang/vendor/zhangmazi')]);
+        $this->publishes([__DIR__.'/views' => $this->resourcePath('views/vendor/zhangmazi')], 'zhangmazi');
         $this->loadViewsFrom(__DIR__.'/views', 'zhangmazi');
         //define language alias
         $this->loadTranslationsFrom(__DIR__ . '/lang', 'ueditor');
@@ -151,5 +151,15 @@ class UeditorServiceProivder extends ServiceProvider
                 ['as' => 'zhangmazi_udemo_logout', 'uses' => '\\' .__NAMESPACE__ .'\\UeditorEndController@demoLogout']
             );
         }
+    }
+
+    /**
+     * 资源路径
+     * @param string $path 路径
+     * @return string 路径
+     */
+    private function resourcePath($path = '')
+    {
+        return app()->basePath().DIRECTORY_SEPARATOR.'resources'.($path ? DIRECTORY_SEPARATOR.$path : $path);
     }
 }

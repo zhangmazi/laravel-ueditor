@@ -28,7 +28,7 @@ class UeditorServiceProivder extends ServiceProvider
     {
         $this->publishes([__DIR__.'/assets' => public_path('assets')], 'public');
         $this->publishes([__DIR__ . '/config' => config_path()], 'config');
-        $this->publishes([__DIR__ . '/lang' => $this->resourcePath('lang/vendor/zhangmazi')]);
+        //$this->publishes([__DIR__ . '/lang' => $this->resourcePath('lang/vendor/zhangmazi')]);
         $this->publishes([__DIR__.'/views' => $this->resourcePath('views/vendor/zhangmazi')], 'zhangmazi');
         $this->loadViewsFrom(__DIR__.'/views', 'zhangmazi');
         //define language alias

@@ -1,6 +1,6 @@
 <?php
 /**
- * 描述.
+ * 上传组件.
  *
  * @author ninja911<ninja911@qq.com>
  * @date   2016-08-21 00:42
@@ -69,7 +69,7 @@ class Uploader
                         $file_thumb_name = 't_' . substr($save_file_name, 0, strrpos($save_file_name, '.')) .
                             '_'. $i .'.' . $file_ext;
                         $local_thumb_path = $save_tmp_dir . '/' . $file_thumb_name;
-                        File::copy($save_origin_file_name, $local_thumb_path);
+                        File::copy($tmp_file_path, $local_thumb_path);
                         if (isset($this->thumbMaxWidth[$i]) && isset($this->thumbMaxHeight[$i]) &&
                             $this->thumbMaxWidth[$i] > 0 && $this->thumbMaxHeight[$i]) {
                             //对是否是固定尺寸进行处理

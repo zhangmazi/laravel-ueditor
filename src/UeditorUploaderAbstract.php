@@ -106,7 +106,7 @@ trait UeditorUploaderAbstract
     {
         $c1 = config('zhangmazi.filesystems', []);
         $c2 = config('filesystems', []);
-        $c2['disks'] = array_merge($c1['disks'], $c2['disks']);
+        $c2['disks'] = array_merge($c2['disks'], $c1['disks']);
         return array_merge($c1, $c2);
     }
 
@@ -202,11 +202,11 @@ trait UeditorUploaderAbstract
             $uploader->imageHelper = app()->make('image');
         }
         if ($arr_files) {
-            $storage_driver = $this->getStorage()->getDriver();
+            //$storage_driver = $this->getStorage()->getDriver();
             $storage_config = $this->getStorageConfig();
             $disk_name = $this->getStorageDiskName();
-            $save_root_path = $storage_driver != 'local' ? storage_path('app/public/ueditor/tmp') :
-                $storage_config[$disk_name]['root'];
+            $storage_driver = $storage_config['disks'][$disk_name]['driver'];
+            $save_root_path = $this->getSaveRootPath($storage_driver);
             $relative_dir = $this->getRelativeDir();
             $visibility = !empty($storage_config[$disk_name]['visibility']) ?
                 $storage_config[$disk_name]['visibility'] : null;
@@ -384,11 +384,11 @@ trait UeditorUploaderAbstract
                 $arr_head = $this->getRemoteFileInfo($url, 'all');
                 if ($arr_head) {    //已经存在
                     $file = File::get($url);
-                    $storage_driver = $this->getStorage()->getDriver();
+                    //$storage_driver = $this->getStorage()->getDriver();
                     $storage_config = $this->getStorageConfig();
                     $disk_name = $this->getStorageDiskName();
-                    $save_root_path = $storage_driver != 'local' ? storage_path('app/public/ueditor/tmp') :
-                        $storage_config[$disk_name]['root'];
+                    $storage_driver = $storage_config['disks'][$disk_name]['driver'];
+                    $save_root_path = $this->getSaveRootPath($storage_driver);
                     $relative_dir = $this->getRelativeDir();
                     $visibility = !empty($storage_config[$disk_name]['visibility']) ?
                         $storage_config[$disk_name]['visibility'] : null;
@@ -604,5 +604,18 @@ trait UeditorUploaderAbstract
     protected function getRelativeDir()
     {
         return 'attachment';
+    }
+
+    /**
+     * 获取保存根目录路径
+     * @paraam string $driver_name 驱动名
+     * @return string
+     */
+    protected function getSaveRootPath($driver_name = 'local')
+    {
+        $disk_name = $this->getStorageDiskName();
+        $storage_config = $this->getStorageConfig();
+        return $driver_name != 'local' ? storage_path('app/public/ueditor/tmp') :
+                $storage_config['disks'][$disk_name]['root'];
     }
 }

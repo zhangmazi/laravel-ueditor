@@ -9,6 +9,7 @@
 namespace Zhangmazi\Ueditor;
 
 use Illuminate\Support\Facades\File;
+use Log;
 
 class Uploader
 {
@@ -176,6 +177,7 @@ class Uploader
                 'origin_pic_height' => 0,
             ];
         }
+        
         return $lists;
     }
 
@@ -268,7 +270,7 @@ class Uploader
     public function initSaveLocalDir($save_root_path, $relative_dir)
     {
         $path = empty($save_root_path) ? storage_path('app/public/ueditor/tmp') : $save_root_path;
-        if (empty($relative_dir)) {
+        if (!empty($relative_dir)) {
             $path .= '/'. $relative_dir;
         }
         if (!File::isDirectory($path)) {

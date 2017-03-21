@@ -5,11 +5,11 @@
  * @author ninja911<ninja911@qq.com>
  * @date   2016-08-20 22:35
  */
-
 namespace Zhangmazi\Ueditor;
 
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\File;
+use Storage;
+use File;
+use Log;
 
 trait UeditorUploaderAbstract
 {
@@ -106,7 +106,7 @@ trait UeditorUploaderAbstract
     {
         $c1 = config('zhangmazi.filesystems', []);
         $c2 = config('filesystems', []);
-        $c2['disks'] = array_merge($c2['disks'], $c1['disks']);
+        $c2['ueditor_disk_name'] = $c1['ueditor_disk_name'];
         return array_merge($c1, $c2);
     }
 
@@ -208,34 +208,22 @@ trait UeditorUploaderAbstract
             $storage_driver = $storage_config['disks'][$disk_name]['driver'];
             $save_root_path = $this->getSaveRootPath($storage_driver);
             $relative_dir = $this->getRelativeDir();
-            $visibility = !empty($storage_config[$disk_name]['visibility']) ?
-                $storage_config[$disk_name]['visibility'] : null;
-            $url_root = !empty($storage_config[$disk_name]['url_root']) ?
-                trim($storage_config[$disk_name]['url_root'], '/') : '';
-            if ($storage_driver != 'local') {
-                $upload_path = '';
-            } else {
-                $upload_path = $save_root_path;
-            }
+            $visibility = !empty($storage_config['disks'][$disk_name]['visibility']) ?
+                $storage_config['disks'][$disk_name]['visibility'] : null;
+            $url_root = $storage_config['disks'][$disk_name]['url_root'];
             foreach ($arr_files as $file) {
                 $res = $uploader->uploadFile($file, $save_root_path, $relative_dir);
                 if (!empty($res[0]['file_size'])) {
-                    if ($this->getStorage()->put(
-                        $upload_path . '/' .$res[0]['file_path'],
+                    $img_url = $relative_dir . '/'. $res[0]['file_name'];
+                    if (File::exists($res[0]['file_native_path']) && $this->getStorage()->put(
+                        $img_url,
                         File::get($res[0]['file_native_path']),
                         $visibility
                     )) {
-                        $res[0]['link_url'] = $url_root . '/' . $res[0]['file_path'];
+                        $res[0]['link_url'] = $url_root . $img_url;
                         $arr_return[] = $res[0];
-                        if ($storage_driver == 'local') {
-                            if (File::exists($res[0]['file_native_path'])) {
-                                File::delete($res[0]['file_native_path']);
-                            }
-                            if (!empty($res[0]['origin_pic_native_path']) &&
-                                File::exists($res[0]['origin_pic_native_path'])) {
-                                File::delete($res[0]['origin_pic_native_path']);
-                            }
-                        }
+                        //删除原始文件
+                        $this->deleteOriginFile($res[0]);
                         //写入DB记录
                         $this->insertRecord($res[0], $request);
                     } else {
@@ -246,6 +234,7 @@ trait UeditorUploaderAbstract
                 }
             }
         }
+
         return $arr_return;
     }
 
@@ -501,6 +490,10 @@ trait UeditorUploaderAbstract
             'catcherLocalDomain' => array(
                 '127.0.0.1',
                 'localhost',
+                'static.oschina.net',
+                '127.net',
+                'cms-bucket.nosdn.127.net',
+                'blog.ninja911.com'
             ),
             'catcherActionName' => 'CatchImage',    //执行抓取远程图片的action名称
             'catcherFieldName'  => $upload_field_name,    //提交的图片列表表单名称
@@ -615,7 +608,19 @@ trait UeditorUploaderAbstract
     {
         $disk_name = $this->getStorageDiskName();
         $storage_config = $this->getStorageConfig();
-        return $driver_name != 'local' ? storage_path('app/public/ueditor/tmp') :
+        return $driver_name != 'local' ? storage_path('app/ueditor/tmp') :
                 $storage_config['disks'][$disk_name]['root'];
+    }
+
+    /**
+     * 删除原始图片
+     * @param $file
+     * @return bool
+     */
+    protected function deleteOriginFile($file)
+    {
+        File::delete($file['file_native_path']);
+        File::delete($file['origin_pic_native_path']);
+        return true;
     }
 }

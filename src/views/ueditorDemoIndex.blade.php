@@ -59,6 +59,7 @@
         <h3>配置</h3>
         <h4>1.配置config/zhangmazi/filesystem.php</h4>
         <p>请根据注释填写,特别要注意root和url_root,这个2个很关键,因为直接导致你是否能上传成功和是否能正常开放预览附件; root的物理路径一定有0755或者0777(当需要建立子目录时)权限.</p>
+        <p>[version 1.0.5]这次更新主要是配置调整,所以重要操作,请将disks节点数组复制到config/filesystem.php内的disks内,并注意如果启用S3驱动,root一定要是null</p>
         <h4>2.配置config/zhangmazi/ueditor.php</h4>
         <p>请根据注释填写,节点[routes]支持多组应用场景,其配置其实就Laravel的Route原生配置方法; 其中带有"group_"前缀的都不填,将不使用路由组模式; 如果"via_integrate"为true,将使用内置命名空间,同时不要修改"uses".</p>
         <h4>3.配置config/zhangmazi/ext2mime.php</h4>
@@ -71,7 +72,10 @@
     <div class="row">
         <h3>Demo使用</h3>
         <p>开发此包时, 为了增加体验感, 特为大家准备了demo.</p>
-        <p>访问 <a href="http://localhost/zhangmazi/ueditor/demo/index">http://localhost/zhangmazi/ueditor/demo/index</a>, 其中localhost跟更改为你自己的绑定的域名.</p>
+        <p>
+            <pre>php artisan serve --host=0.0.0.0 --port=8030</pre>
+        </p>
+        <p>访问 <a href="http://localhost:8030/zhangmazi/ueditor/demo/index">http://localhost:8030/zhangmazi/ueditor/demo/index</a>, 其中localhost跟更改为你自己的绑定的域名.</p>
         <p>为了安全性, 在[.env]文件中APP_DEBUG=true才能使用demo,否则无法访问以上demo相关路由地址.</p>
     </div>
     <div class="row">
@@ -140,6 +144,29 @@ class CustomUeditorController extends Controller
     protected function getRelativeDir()
     {
         return 'uploads/ueditor';
+    }
+
+    /**
+     * 获取保存根目录路径
+     * @paraam string $driver_name 驱动名
+     * @return string
+     */
+    protected function getSaveRootPath($driver_name = 'local')
+    {
+        return storage_path('app/ueditor');
+    }
+
+    /**
+     * 删除原始文件
+     * @param $file
+     * @return bool
+     */
+    protected function deleteOriginFile($file)
+    {
+        File::delete($file['file_native_path']);
+        File::delete($file['origin_pic_native_path']);
+
+        return true;
     }
 }
 
@@ -233,6 +260,7 @@ class CustomUeditorController extends Controller
         'autoHeightEnabled' : false,
         'pageBreakTag' : 'editor_page_break_tag',
         'maximumWords' : 1000000,   //自定义可以输入多少字
+        'autoFloatEnabled' : false,
         'initialFrameWidth' : "100%",
         'initialFrameHeight' : ueditor_height
     });
@@ -261,6 +289,7 @@ class CustomUeditorController extends Controller
         'pageBreakTag' : 'editor_page_break_tag',
         'maximumWords' : 1000000,   //自定义可以输入多少字
         'toolbars' : ueditor_toolbars,  //采用自定义工具条
+        'autoFloatEnabled' : false,
         'initialFrameWidth' : 600,  //自定义高度
         'initialFrameHeight' : 300  //自定义高度
     });
@@ -278,6 +307,7 @@ class CustomUeditorController extends Controller
         'autoHeightEnabled' : false,
         'pageBreakTag' : 'editor_page_break_tag',
         'maximumWords' : 1000000,   //自定义可以输入多少字
+        'autoFloatEnabled' : false,
         'initialFrameWidth' : "100%",
         'initialFrameHeight' : ueditor_height
     });

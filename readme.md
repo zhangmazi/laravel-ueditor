@@ -50,6 +50,7 @@ php artisan vendor:publish --provider="Zhangmazi\Ueditor\UeditorServiceProivder"
 #### 1.配置config/zhangmazi/filesystem.php
 
 请根据注释填写,特别要注意root和url_root,这个2个很关键,因为直接导致你是否能上传成功和是否能正常开放预览附件; root的物理路径一定有0755或者0777(当需要建立子目录时)权限.
+[version 1.0.5]这次更新主要是配置调整,所以重要操作,请将disks节点数组复制到config/filesystem.php内的disks内,并注意如果启用S3驱动,root一定要是null
 
 #### 2.配置config/zhangmazi/ueditor.php
 
@@ -63,9 +64,13 @@ php artisan vendor:publish --provider="Zhangmazi\Ueditor\UeditorServiceProivder"
 
 ### Demo使用
 
-开发此包时, 为了增加体验感, 特为大家准备了demo.
+开发此包时, 为了增加体验感, 特为大家准备了demo. 启用内置服务运行命令
 
-访问 [http://localhost/zhangmazi/ueditor/demo/index](http://localhost/zhangmazi/ueditor/demo/index), 其中localhost跟更改为你自己的绑定的域名.
+```shell
+php artisan serve --host=0.0.0.0 --port=8030
+```
+
+访问 [http://localhost:8030/zhangmazi/ueditor/demo/index](http://localhost:8030/zhangmazi/ueditor/demo/index), 其中localhost跟更改为你自己的绑定的域名.
 
 为了安全性, 在[.env]文件中APP_DEBUG=true才能使用demo,否则无法访问以上demo相关路由地址.
 
@@ -151,6 +156,29 @@ class CustomUeditorController extends Controller
     protected function getRelativeDir()
     {
         return 'uploads/ueditor';
+    }
+
+    /**
+     * 获取保存根目录路径
+     * @paraam string $driver_name 驱动名
+     * @return string
+     */
+    protected function getSaveRootPath($driver_name = 'local')
+    {
+        return storage_path('app/ueditor');
+    }
+
+    /**
+     * 删除原始文件
+     * @param $file
+     * @return bool
+     */
+    protected function deleteOriginFile($file)
+    {
+        File::delete($file['file_native_path']);
+        File::delete($file['origin_pic_native_path']);
+
+        return true;
     }
 }
 
